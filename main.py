@@ -2,15 +2,16 @@ import json
 from fastapi import FastAPI, Request, status
 from starlette.responses import Response
 from pydantic import BaseModel
+from typing import List
+from datetime import datetime
 
 app = FastAPI()
 
 @app.get("/ping")
 def get_ping():
     return Response(content="pong", media_type="text/plain", status_code=200)
-
 @app.get("/home")
-def home():
+def get_home():
     with open("home.html", "r", encoding="utf-8") as f:
         html_content = f.read()
     return Response(content=html_content, media_type="text/html", status_code=200)
@@ -33,3 +34,6 @@ def create_posts(post:Post):
     json_content = json.dumps(posts_db, default=str, ensure_ascii=False, indent=4)
     return Response(content=json_content, media_type="application/json", status_code=201)
 
+@app.get("/posts")
+def get_post():
+    return {"Posts": posts_db}
