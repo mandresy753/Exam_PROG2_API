@@ -26,6 +26,7 @@ class Post(BaseModel):
     author: str
     title: str
     content: str
+    creation_datetime: datetime
     
 posts_db = []
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
@@ -37,3 +38,23 @@ def create_posts(post:Post):
 @app.get("/posts")
 def get_post():
     return {"Posts": posts_db}
+
+posts_db: List[dict] = []
+
+@app.put("/posts")
+def put_posts(updated_posts: List[Post]):
+    global posts_db
+
+    for new_post in updated_posts:
+        found = False
+        for post in posts_db:
+            if post["title"] == new_post.title:
+                if post != new_post.dict():
+                    post.update(new_post.dict())
+                found = True
+                break
+        if not found:
+            posts_db.append(new_post.dict())
+
+    json_content = json.dumps(posts_db, default=str, ensure_ascii=False, indent=4)
+    return Response(content=json_content, media_type="application/json", status_code=200)
